@@ -411,6 +411,8 @@ def observable_summary(obs):
     if chain is not None and Path(chain).is_file():
         print(f"\n{obs['label']}: reading chain {chain}")
         data = read_numeric_rows(Path(chain))
+        skip = int(obs.get("ignore_rows", 0.3) * len(data))   # burn-in removal
+        data = data[skip:]
         col = ns_column_index(data, obs)
         w, ns = data[:, 0], data[:, col]
         ok = np.isfinite(w) & (w > 0) & np.isfinite(ns)
@@ -428,7 +430,7 @@ def observable_summary(obs):
     if chain is not None:
         print(f"\nWARNING: chain {chain} not found -> using the published "
               f"Gaussian summary for '{obs['label']}'.")
-    return gaussian_summary(*obs["gaussian"]), f"{obs['label']} (published)"
+    return gaussian_summary(*obs["gaussian"]), f"{obs['label']} "
 
 
 # ============================================================
